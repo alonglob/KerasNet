@@ -1,32 +1,33 @@
+from keras.applications.resnet50 import ResNet50
 from keras.models import Sequential
 from keras.layers import Conv2D, Dense, Activation, MaxPooling2D, Input, Flatten, Dropout
 from keras.optimizers import SGD
+from keras import applications
 
 from modules.read_tfrecord import DataSet
 
 import numpy as np
 
-# Create the Model
-model = Sequential()
+# Create the Model, pretrained.
+#model = ResNet50(include_top=False, weights='imagenet',input_shape=(251,251,3),classes=2, pooling='max')
+model = applications.VGG16(weights='imagenet', include_top=False, input_shape=(251,251,3))
+print('Model loaded.')
 
-model.add(Conv2D(128, (64, 64), activation='relu', input_shape=(251, 251, 3)))
-model.add(Conv2D(128, (32, 32), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+x = model.output
+x = Flatten(input_shape=(model.output_shape))(x)
+x = Dense(100, activation='relu')(x)
+x = Dropout(0.5)(x)
 
-model.add(Conv2D(512, (3, 3), activation='relu'))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
+predictions = Dense(1, activation='softmax',name='predictions')(x)
 
-model.add(Flatten())
-model.add(Dense(100, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(2, activation='softmax'))
 
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+# set the first 25 layers (up to the last conv block)
+# to non-trainable (weights will not be updated)
+for layer in model.layers[:25]:
+    layer.trainable = False
+
+sgd = SGD(lr=0.0001, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
-
 # importing the training data
 
 dataset = iter(DataSet('/home/alon/Documents/tf_records/', 2, batch_size=10))

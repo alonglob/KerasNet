@@ -2,13 +2,11 @@
 # parameters: height, width, raw pixel matrix, label
 
 import tensorflow as tf
-import skimage.io as io
-from collections import Iterator, Generator
 import numpy as np
 
 
 class DataSet:
-    def __init__(self, tfrecords_path, num_classes, training=True, size=1):
+    def __init__(self, tfrecords_path, num_classes, training=True, batch_size=1):
 
         if training:
             datasetName = 'dataset_training_shuffled.tfrecords'
@@ -16,15 +14,15 @@ class DataSet:
             datasetName = 'dataset_validation_shuffled.tfrecords'
 
         self.record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_path+datasetName)
-        self.size = size
+        self.batch_size = batch_size
         self.num_classes = num_classes
         self.training = training
 
     def __next__(self):
 
-        labels = np.ndarray([self.size, self.num_classes])
+        labels = np.ndarray([self.batch_size, self.num_classes])
 
-        for i in range(self.size):
+        for i in range(self.batch_size):
             string_record = next(self.record_iterator)
 
             example = tf.train.Example()
@@ -48,7 +46,7 @@ class DataSet:
 
             # after the first run, the size can be determined:
             if i == 0:
-                images = np.ndarray([self.size, height, width, 3])
+                images = np.ndarray([self.batch_size, height, width, 3])
 
             img_1d = np.fromstring(img_string, dtype=np.uint8)
             img_1d = np.divide(img_1d.astype(dtype=np.float32), 255)

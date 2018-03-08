@@ -64,7 +64,7 @@ def framer(main_path, name, label, training=True):
                 img = Image.open(cd + '/' + _)
 
                 old_size = img.size
-                new_size = (502, 502 + x)
+                new_size = (512, 512 + x)
                 img = img.crop((0, 0, old_size[0], old_size[1] - x))
 
                 deltaw = int(new_size[0] - old_size[0])
@@ -73,7 +73,7 @@ def framer(main_path, name, label, training=True):
                 img_with_border = ImageOps.expand(img, border=ltrb_border, fill='black')
 
                 # img_with_border.save('Blueberry/ready/' + str(i) + '.png'
-                img_with_border = img_with_border.resize(size=(502, 502))
+                img_with_border = img_with_border.resize(size=(512, 512))
                 for theta in range(0, 360, 45):
                     img_with_border.rotate(theta).save(directory + str(label) + '/' + str(i) + '.png')
                     slicer.slice(directory + str(label) + '/' + str(i) + '.png', 4)
