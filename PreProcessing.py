@@ -10,6 +10,7 @@ import threading
 
 from modules.progress import progress
 
+
 # check this for actual functionality! seems to work?
 class FramerThread(threading.Thread):
     def __init__(self, path, name, label_num, training=True):
@@ -25,24 +26,30 @@ class FramerThread(threading.Thread):
         print(" Exiting " + self.name)
 
 
-def mainFraming(main_path):
+def mainFraming(main_path, num_classes):
     # create a training dataset
     thread1 = FramerThread(main_path, 'Blue_Dream', 0, training=True)
     thread2 = FramerThread(main_path, 'Lemon_Haze', 1, training=True)
+    thread3 = FramerThread(main_path, 'Green_Crack', 2, training=True)
 
     # create a validation dataset
-    thread3 = FramerThread(main_path, 'Blue_Dream', 0, training=False)
-    thread4 = FramerThread(main_path, 'Lemon_Haze', 1, training=False)
+    thread4 = FramerThread(main_path, 'Blue_Dream', 0, training=False)
+    thread5 = FramerThread(main_path, 'Lemon_Haze', 1, training=False)
+    thread6 = FramerThread(main_path, 'Green_Crack', 2, training=False)
 
     thread1.start()
     thread2.start()
     thread3.start()
     thread4.start()
+    thread5.start()
+    thread6.start()
 
     thread1.join()
     thread2.join()
     thread3.join()
     thread4.join()
+    thread5.join()
+    thread6.join()
 
     print("finished main processes")
 
@@ -93,6 +100,7 @@ def framer(main_path, name, label, training=True):
     sys.stdout.write("\r" + 'A total of ' + str(i) + ' ' + name + ' images have been processed.')
     sys.stdout.write('image size: ' + np.str(im_size))
     sys.stdout.flush()
+
 
 def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -147,7 +155,7 @@ def create_tfrecord(dir_path, label_num, num_of_files, writer, training=True):
             print(dir_path + directory + str(label_num) + '/' + _ + ' failed')
             pass
 
-        progress(i,num_of_files,'label_'+ str(label_num))
+        progress(i, num_of_files, 'label_' + str(label_num))
 
         i = i + 1
     print('')
@@ -195,14 +203,13 @@ def shuffle_tfrecord(dir_path, filename, num_of_data, training=True):
         reconstructed_img = img_1d.reshape((height, width, -1))
         connected.append([reconstructed_img, label])
 
-        progress(i,num_of_data,'upload status')
+        progress(i, num_of_data, 'upload status')
 
     np.random.shuffle(connected)
     writer = tf.python_io.TFRecordWriter(dir_path + '/tf_records/' + dataName)
     print(': successfully loaded and shuffled data, saving process is beginning: ')
 
     for i in range(num_of_data):
-
         img_raw = connected[i][0].tostring()
 
         example = tf.train.Example(features=tf.train.Features(feature={
@@ -214,7 +221,7 @@ def shuffle_tfrecord(dir_path, filename, num_of_data, training=True):
 
         writer.write(example.SerializeToString())
 
-        progress(i,num_of_data,'shuffle\saving status')
+        progress(i, num_of_data, 'shuffle\saving status')
 
     writer.close()
 
@@ -236,30 +243,37 @@ class TfThread(threading.Thread):
         create_tfrecord(self.dir_path, self.label_num, self.num_of_files, self.writer, self.training)
         print("Exiting " + self.name)
 
-def mainrecording(tfrecords_path):
 
+def mainrecording(tfrecords_path, num_classes):
     tfrecords_filenames = ['dataset_training.tfrecords', 'dataset_validation.tfrecords']
     path = tfrecords_path
 
     # Write a training tfrecord dataset
     writer1 = tf.python_io.TFRecordWriter(path + '/tf_records/' + tfrecords_filenames[0])
-    thread1 = TfThread('thread 1', path, 0, 20000, writer1, training=True)
+
+    thread1 = TfThread('thread 1', path, 0, 13000, writer1, training=True)
     thread2 = TfThread('thread 2', path, 1, 13000, writer1, training=True)
+    thread3 = TfThread('thread 3', path, 2, 13000, writer1, training=True)
 
     # Write a validation tfrecord dataset
     writer2 = tf.python_io.TFRecordWriter(path + '/tf_records/' + tfrecords_filenames[1])
-    thread3 = TfThread('thread 3', path, 0, 20000, writer2, training=False)
-    thread4 = TfThread('thread 4', path, 1, 13000, writer2, training=False)
+    thread4 = TfThread('thread 3', path, 0, 13000, writer2, training=False)
+    thread5 = TfThread('thread 4', path, 1, 13000, writer2, training=False)
+    thread6 = TfThread('thread 4', path, 2, 13000, writer2, training=False)
 
     thread1.start()
     thread2.start()
     thread3.start()
     thread4.start()
+    thread5.start()
+    thread6.start()
 
     thread1.join()
     thread2.join()
     thread3.join()
     thread4.join()
+    thread5.join()
+    thread6.join()
 
     writer1.close()
     writer2.close()
@@ -271,10 +285,13 @@ def mainrecording(tfrecords_path):
 
 
 if __name__ == '__main__':
+    # set labels
+    num_classes = 3
+
     # framer
     dataset_path = '/home/alon/Documents/DataSet/'
-    mainFraming(dataset_path)
+    mainFraming(dataset_path, num_classes)
 
     # tfrecords creation
     tfrecords_path = '/home/alon/Documents'
-    mainrecording(tfrecords_path)
+    mainrecording(tfrecords_path, num_classes)
