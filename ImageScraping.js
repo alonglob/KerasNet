@@ -6,7 +6,7 @@ scrollDownAfter500ms().then(() => {
 	return clickLoadMoreEvery2Sec();
 }).then(() => {
 	alert("loaded all the photos");
-	‎downloadAllImages();
+	downloadAllImages();
 });
 
 function scrollDownAfter500ms() {
