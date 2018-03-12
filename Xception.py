@@ -13,7 +13,7 @@ x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
 x = Dense(64, activation='relu')(x)
 # and a logistic layer -- let's say we have 3 classes
-predictions = Dense(3, activation='softmax')(x)
+predictions = Dense(5, activation='softmax')(x)
 
 # this is the model we will train
 model = Model(inputs=base_model.input, outputs=predictions)
@@ -47,22 +47,13 @@ model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossent
 
 # importing the training data
 dataset = iter(DataSet('/home/alon/Documents/tf_records/', 3, batch_size=10))
-try:
-    for i in range(20000):
-        batch = next(dataset)
 
-        model.train_on_batch(batch[0], batch[1])
-        if i % 2000 == 0:
-            classes = model.predict(batch[0])
+# import DataGenerator
+from modules.Tensor_generator import train_generator, validation_generator
 
-            print(classes)
-            print(batch[1])
-
-        if i % 100 == 0:
-            print('epoch: ' + str(i))
-
-except StopIteration:
-    print('iterator has stopped, probably finished training/eval')
-except:
-    print('this is not an iterator issue, issue is being raised:')
-    raise
+model.fit_generator(
+        train_generator,
+        steps_per_epoch=1000,
+        epochs=50,
+        validation_data=validation_generator,
+        validation_steps=2000)

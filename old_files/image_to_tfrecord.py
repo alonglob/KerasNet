@@ -161,33 +161,30 @@ class TfThread(threading.Thread):
 
 
 tfrecords_filenames = ['dataset_training.tfrecords', 'dataset_validation.tfrecords']
-doc_path = '/home/alon/Documents'
+path = '/home/alon/Documents'
 # Write a training tfrecord dataset
-writer1 = tf.python_io.TFRecordWriter(doc_path + '/tf_records/' + tfrecords_filenames[0])
-thread1 = TfThread('thread 1', doc_path, 0, 20000, writer1, training=True)
-thread2 = TfThread('thread 2', doc_path, 1, 13000, writer1, training=True)
+writer1 = tf.python_io.TFRecordWriter(path + '/tf_records/' + tfrecords_filenames[0])
 
-
-# Write a validation tfrecord dataset
-writer2 = tf.python_io.TFRecordWriter(doc_path + '/tf_records/' + tfrecords_filenames[1])
-thread3 = TfThread('thread 3', doc_path, 0, 20000, writer2, training=False)
-thread4 = TfThread('thread 4', doc_path, 1, 13000, writer2, training=False)
-
+thread1 = TfThread('thread 1', path, 0, 13000, writer1, training=True)
+thread2 = TfThread('thread 2', path, 1, 13000, writer1, training=True)
+thread3 = TfThread('thread 3', path, 2, 13000, writer1, training=True)
+thread4 = TfThread('thread 4', path, 3, 13000, writer1, training=True)
+thread5 = TfThread('thread 5', path, 4, 13000, writer1, training=True)
 
 thread1.start()
 thread2.start()
 thread3.start()
 thread4.start()
+thread5.start()
 
 thread1.join()
 thread2.join()
 thread3.join()
 thread4.join()
+thread5.join()
 
 writer1.close()
-writer2.close()
 
 # Shuffle the tfrecords for the final format
-shuffle_tfrecord(doc_path, tfrecords_filenames[0], 33000, training=True)
-shuffle_tfrecord(doc_path, tfrecords_filenames[1], 33000, training=False)
+shuffle_tfrecord(path, tfrecords_filenames[0], 50000, training=True)
 print('writer successfully closed.')

@@ -27,6 +27,8 @@ class FramerThread(threading.Thread):
 
 
 def mainFraming(main_path, num_classes):
+    #first round of framing:
+
     # create a training dataset
     thread1 = FramerThread(main_path, 'Blue_Dream', 0, training=True)
     thread2 = FramerThread(main_path, 'Lemon_Haze', 1, training=True)
@@ -50,6 +52,26 @@ def mainFraming(main_path, num_classes):
     thread4.join()
     thread5.join()
     thread6.join()
+
+    # second round of framing:
+
+    # create a training dataset
+    thread1 = FramerThread(main_path, 'GSC', 3, training=True)
+    thread2 = FramerThread(main_path, 'Granddaddy_Purple', 4, training=True)
+
+    # create a validation dataset
+    thread3 = FramerThread(main_path, 'GSC', 3, training=False)
+    thread4 = FramerThread(main_path, 'Granddaddy_Purple', 4, training=False)
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+
+    thread1.join()
+    thread2.join()
+    thread3.join()
+    thread4.join()
 
     print("finished main processes")
 
@@ -254,33 +276,51 @@ def mainrecording(tfrecords_path, num_classes):
     thread1 = TfThread('thread 1', path, 0, 13000, writer1, training=True)
     thread2 = TfThread('thread 2', path, 1, 13000, writer1, training=True)
     thread3 = TfThread('thread 3', path, 2, 13000, writer1, training=True)
-
-    # Write a validation tfrecord dataset
-    writer2 = tf.python_io.TFRecordWriter(path + '/tf_records/' + tfrecords_filenames[1])
-    thread4 = TfThread('thread 3', path, 0, 13000, writer2, training=False)
-    thread5 = TfThread('thread 4', path, 1, 13000, writer2, training=False)
-    thread6 = TfThread('thread 4', path, 2, 13000, writer2, training=False)
+    thread4 = TfThread('thread 4', path, 3, 13000, writer1, training=True)
+    thread5 = TfThread('thread 5', path, 4, 13000, writer1, training=True)
 
     thread1.start()
     thread2.start()
     thread3.start()
     thread4.start()
     thread5.start()
-    thread6.start()
 
     thread1.join()
     thread2.join()
     thread3.join()
     thread4.join()
     thread5.join()
-    thread6.join()
 
     writer1.close()
+
+
+    # Write a validation tfrecord dataset
+    writer2 = tf.python_io.TFRecordWriter(path + '/tf_records/' + tfrecords_filenames[1])
+
+    thread6 = TfThread('thread 1', path, 0, 13000, writer2, training=False)
+    thread7 = TfThread('thread 2', path, 1, 13000, writer2, training=False)
+    thread8 = TfThread('thread 3', path, 2, 13000, writer2, training=False)
+    thread9 = TfThread('thread 4', path, 1, 13000, writer2, training=False)
+    thread10 = TfThread('thread 5', path, 2, 13000, writer2, training=False)
+
+
+    thread6.start()
+    thread7.start()
+    thread8.start()
+    thread9.start()
+    thread10.start()
+
+    thread6.join()
+    thread7.join()
+    thread8.join()
+    thread9.join()
+    thread10.join()
+
     writer2.close()
 
     # Shuffle the tfrecords for the final format
-    shuffle_tfrecord(path, tfrecords_filenames[0], 33000, training=True)
-    shuffle_tfrecord(path, tfrecords_filenames[1], 33000, training=False)
+    shuffle_tfrecord(path, tfrecords_filenames[0], 50000, training=True)
+    shuffle_tfrecord(path, tfrecords_filenames[1], 50000, training=False)
     print('writer successfully closed.')
 
 
