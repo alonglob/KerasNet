@@ -1,8 +1,7 @@
 from keras.applications.xception import Xception
 from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D
-from keras.optimizers import SGD
-from modules.read_tfrecord import DataSet
+from keras.optimizers import SGD, Adam
 
 # create the base pre-trained model
 base_model = Xception(weights='imagenet', include_top=False)
@@ -42,14 +41,13 @@ for layer in model.layers[131:]:
    layer.trainable = True
 
 # we need to recompile the model for these modifications to take effect
-# we use SGD with a low learning rate
-model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
-
-# importing the training data
-dataset = iter(DataSet('/home/alon/Documents/tf_records/', 3, batch_size=10))
+# we use Adam with a low lr and vanilla Hyper Parameters
+adam_optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+model.compile(adam_optimizer, loss='categorical_crossentropy')
 
 # import DataGenerator
-from modules.Tensor_generator import train_generator, validation_generator
+from modules.Tensor_generator import initiate_generators
+train_generator, validation_generator = initiate_generators(batch_size=10)
 
 model.fit_generator(
         train_generator,
