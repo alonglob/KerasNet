@@ -1,10 +1,8 @@
 from keras.models import Sequential
-from keras.layers import Conv2D, Dense, Activation, MaxPooling2D, Input, Flatten, Dropout
+from keras.layers import Conv2D, Dense, MaxPooling2D, Flatten, Dropout
 from keras.optimizers import SGD
 
-from modules.read_tfrecord import DataSet
-
-import numpy as np
+from old_files.read_tfrecord import DataSet
 
 # Create the Model
 model = Sequential()

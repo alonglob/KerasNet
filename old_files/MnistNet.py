@@ -30,7 +30,7 @@ import argparse
 import sys
 import tempfile
 
-from modules.read_tfrecord import DataSet
+from old_files.read_tfrecord import DataSet
 
 import tensorflow as tf
 
