@@ -1,21 +1,10 @@
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, img_to_array
 from PIL import Image, ImageOps
 import numpy as np
 from PIL import Image
 
+
 # create a filter from image
-filter_img = Image.open('filter.png')
-filter_array = np.array(filter_img.getdata())
-
-def PreProcessing_blacken(numpy_input):
-    numpy_processed = np.array(numpy_input)
-    print(np.shape(numpy_processed))
-    numpy_output = np.dot(numpy_input,filter_array)
-
-    return numpy_output
-
-
-
 
 # Create a DataGenerator with Predefined Image Processing functions
 
@@ -26,7 +15,6 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
     samplewise_std_normalization=True,
-    preprocessing_function=PreProcessing_blacken,
     data_format="channels_last")
 
 # From the train dataGenerator create an identical test dataGenerator

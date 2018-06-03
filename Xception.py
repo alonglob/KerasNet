@@ -12,7 +12,7 @@ x = GlobalAveragePooling2D()(x)
 # let's add a fully-connected layer
 x = Dense(128, activation='relu')(x)
 # and a logistic layer -- let's say we have 3 classes
-predictions = Dense(3, activation='softmax')(x)
+predictions = Dense(2, activation='softmax')(x)
 
 # this is the model we will train
 model = Model(inputs=base_model.input, outputs=predictions)
